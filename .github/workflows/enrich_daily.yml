@@ -19,13 +19,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: maven
-          
-      # Poll the ProverB
-      - name: Pull ProVerB Ontology
-        run: |
-          git clone https://github.com/LiuLiujie/ProVerB-Ontology.git
-          echo Clone ProVerB success
-      
+
       # Package the jar file
       - name: package
         run: |
