@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import nl.utwente.proverb.domain.ontology.PROVERB;
 import nl.utwente.proverb.service.GitHubService;
 import nl.utwente.proverb.service.OntologyService;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.springframework.stereotype.Controller;
 
@@ -17,9 +16,6 @@ public class RepositoryController {
 
     @javax.annotation.Resource
     private OntologyService ontologyService;
-
-    @javax.annotation.Resource
-    private Model model;
 
     public boolean enrichGitHubRepoDetail(Resource gitHubResource){
         var url = gitHubResource.toString();

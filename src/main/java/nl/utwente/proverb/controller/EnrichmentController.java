@@ -2,8 +2,6 @@ package nl.utwente.proverb.controller;
 
 import lombok.extern.log4j.Log4j2;
 import nl.utwente.proverb.service.OntologyService;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +20,6 @@ public class EnrichmentController {
     @Resource
     private OntologyService ontologyService;
 
-    ConfigurableApplicationContext context;
 
     public Map<String, Boolean> enrichRepository(){
         var repoResources = ontologyService.getAllRepository();
@@ -44,7 +41,6 @@ public class EnrichmentController {
     void execution(){
         log.info("Enrichment start");
         this.enrichRepository();
-        log.info("Application exit");
-        SpringApplication.exit(context, () -> 0);
+        log.info("Enrichment end");
     }
 }
