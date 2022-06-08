@@ -57,7 +57,7 @@ jobs:
       - name: Enrichment
         run: |
           chmod 0755 ProVerBMate-1.0.jar
-          java -jar ProVerBMate-1.0.jar --spring.profiles.active=daily --github-token=${{secrets.ProVerBMate}} --springer-key=${{secrets.SPRINGER_KEY}} --cross-ref.mailto=${{secrets.CROSS_REF}}
+          java -jar ProVerBMate-1.0.jar --spring.profiles.active=daily --github-token=${{secrets.GIT_API}} --springer-key=${{secrets.SPRINGER_KEY}} --cross-ref.mailto=${{secrets.CROSS_REF}}
           echo Enrichment success.
 
       # Release
