@@ -37,7 +37,7 @@ jobs:
           name: converter
           path: target/ProVerBMate-1.0.jar
 
-  convert:
+  enrich:
     needs: build
     runs-on: ubuntu-latest
     steps:
