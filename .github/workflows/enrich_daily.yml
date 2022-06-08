@@ -35,7 +35,7 @@ jobs:
       #Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: converter
+          name: ProVerBMate
           path: target/ProVerBMate-1.0.jar
 
   enrich:
@@ -45,7 +45,7 @@ jobs:
       # Download
       - uses: actions/download-artifact@v3
         with:
-          name: converter
+          name: ProVerBMate
 
       # Set Java environment
       - name: Set up JDK 11
