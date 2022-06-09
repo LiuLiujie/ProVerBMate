@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static nl.utwente.proverb.domain.api.ArticleAPI.CROSSREF_API;
 import static nl.utwente.proverb.domain.api.ArticleAPI.DOI_DOMAIN;
@@ -26,19 +27,19 @@ public class CrossRefServiceImpl implements ArticleService {
     private RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public ArticleDTO getArticle(String doi) throws NoSuchArticleException {
+    public Optional<ArticleDTO> getArticle(String doi) {
         RestTemplate restTemplate = restTemplateBuilder.build();
         var crossRefDTO = Objects.requireNonNullElseGet(
                 restTemplate.getForObject(getCrossRefAPI(doi), CrossRefDTO.class),
                 ()-> {throw new NoSuchArticleException();});
         if (crossRefDTO.getMessage().getTitle() == null){
-            throw new NoSuchArticleException();
+            return Optional.empty();
         }
-        return new ArticleDTO(crossRefDTO);
+        return Optional.of(new ArticleDTO(crossRefDTO));
     }
 
     @Override
-    public ArticleDTO getArticleFromURL(String doiURL) throws NoSuchArticleException {
+    public Optional<ArticleDTO> getArticleFromURL(String doiURL) throws NoSuchArticleException {
         if (!doiURL.contains(DOI_DOMAIN)){
             throw new NoSuchArticleException("Not DOI link");
         }
