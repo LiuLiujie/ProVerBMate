@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class Message {
 
     private List<String> title;
 
+    @Nullable
     private List<Author> author;
 
     private List<String> subject;

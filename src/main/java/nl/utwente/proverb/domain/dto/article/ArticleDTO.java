@@ -22,8 +22,10 @@ public class ArticleDTO {
         var article = dto.getMessage();
         this.title = article.getTitle().get(0);
         this.doi = article.getDoi();
-        this.authors = new ArrayList<>(article.getAuthor().size());
-        dto.getMessage().getAuthor().forEach(author -> this.authors.add(new Author(author)));
+        if (article.getAuthor() != null){
+            this.authors = new ArrayList<>(article.getAuthor().size());
+            article.getAuthor().forEach(author -> this.authors.add(new Author(author)));
+        }
     }
 
     public ArticleDTO(SpringerDTO dto) {
