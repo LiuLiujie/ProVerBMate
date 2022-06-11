@@ -17,7 +17,11 @@ public interface OntologyService {
 
     Resource createContributor(String githubHTMLURL, Resource gitHubResource);
 
-    List<Resource> getAllRepository();
+    Resource createWriter(Resource articleResource, String name);
+
+    List<Resource> getAllRepositories();
+
+    List<Resource> getAllArticles();
 
     void write() throws IOException;
 }

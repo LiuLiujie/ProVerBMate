@@ -5,14 +5,18 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 @Setter
 @Getter
 @NoArgsConstructor
 public class Author {
 
+    /**
+     * ORCID: An URL to ORL webpage
+     */
     @JsonAlias("ORCID")
-    private String orcid;
+    private @Nullable String orcid;
 
     private String given;
 

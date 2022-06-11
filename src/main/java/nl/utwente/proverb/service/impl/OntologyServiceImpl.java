@@ -44,8 +44,22 @@ public class OntologyServiceImpl implements OntologyService {
     }
 
     @Override
-    public List<Resource> getAllRepository() {
+    public Resource createWriter(Resource articleResource, String name){
+        var writer = model.createResource(PROVERB.getURI() + escapeURIName(name));
+        this.addProperty(writer, RDF.type, PROVERB.R_WRITER);
+        this.addProperty(articleResource, PROVERB.P_AUTHOR, writer);
+        return writer;
+    }
+
+    @Override
+    public List<Resource> getAllRepositories() {
         var p = model.listSubjectsWithProperty(RDF.type, PROVERB.R_REPOSITORY);
+        return p.toList();
+    }
+
+    @Override
+    public List<Resource> getAllArticles() {
+        var p = model.listSubjectsWithProperty(RDF.type, PROVERB.R_ARTICLE);
         return p.toList();
     }
 
@@ -58,6 +72,10 @@ public class OntologyServiceImpl implements OntologyService {
         try (var outputStream = new FileOutputStream(outputFile, false)) {
             RDFDataMgr.write(outputStream , model, Lang.RDFXML);
         }
+    }
 
+    private String escapeURIName(String str){
+        str = str.replace(" ", "_");
+        return str;
     }
 }

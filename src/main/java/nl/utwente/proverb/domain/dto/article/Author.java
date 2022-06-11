@@ -1,29 +1,29 @@
 package nl.utwente.proverb.domain.dto.article;
 
 import lombok.Getter;
-import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 
 public class Author {
 
-    @Setter
     @Getter
     private String given;
 
-    @Setter
     @Getter
     private String family;
 
     private String name;
 
-    @Setter
     @Getter
-    private String contact;
+    private @Nullable String email;
+
+    @Getter
+    private @Nullable String orcid;
 
     public Author(nl.utwente.proverb.domain.dto.crossref.Author author){
         this.given = author.getGiven();
         this.family = author.getFamily();
-        this.contact = author.getOrcid();
+        this.orcid = author.getOrcid();
     }
 
     public Author(nl.utwente.proverb.domain.dto.springer.Author author){
