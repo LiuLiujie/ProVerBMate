@@ -13,6 +13,7 @@ public class PROVERB {
     @Getter
     public static final String URI = "http://slebok.github.io/proverb/ontology#";
 
+    /*Since Ontology v1.2*/
     private static final Model m = ModelFactory.createDefaultModel();
 
     public static final Resource R_ARTICLE = m.createResource(URI + "Article");
@@ -44,4 +45,7 @@ public class PROVERB {
     public static final Property P_AUTHOR = m.createProperty(URI, "author");
 
     public static final Property P_CONTRIBUTOR = m.createProperty(URI, "contributor");
+
+    /*Since ontology v1.3*/
+    public static final Property P_ORCID = m.createProperty(URI, "orcid");
 }
