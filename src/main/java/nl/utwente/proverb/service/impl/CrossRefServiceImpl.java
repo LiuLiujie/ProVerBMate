@@ -36,7 +36,7 @@ public class CrossRefServiceImpl implements ArticleService {
             }
             return Optional.of(new ArticleDTO(crossRefDTO));
         }catch (RestClientException e){
-            return Optional.of(new ArticleDTO(new CrossRefDTO()));
+            return Optional.empty();
         }
     }
 
