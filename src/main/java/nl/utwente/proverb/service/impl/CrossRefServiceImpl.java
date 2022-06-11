@@ -2,16 +2,16 @@ package nl.utwente.proverb.service.impl;
 
 import nl.utwente.proverb.domain.dto.article.ArticleDTO;
 import nl.utwente.proverb.domain.dto.crossref.CrossRefDTO;
-import nl.utwente.proverb.exceptions.NoSuchArticleException;
+import nl.utwente.proverb.exceptions.InvalidResourceURLException;
 import nl.utwente.proverb.service.ArticleService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static nl.utwente.proverb.domain.api.ArticleAPI.CROSSREF_API;
@@ -29,19 +29,21 @@ public class CrossRefServiceImpl implements ArticleService {
     @Override
     public Optional<ArticleDTO> getArticle(String doi) {
         RestTemplate restTemplate = restTemplateBuilder.build();
-        var crossRefDTO = Objects.requireNonNullElseGet(
-                restTemplate.getForObject(getCrossRefAPI(doi), CrossRefDTO.class),
-                ()-> {throw new NoSuchArticleException();});
-        if (crossRefDTO.getMessage().getTitle() == null){
-            return Optional.empty();
+        try {
+            var crossRefDTO = restTemplate.getForObject(getCrossRefAPI(doi), CrossRefDTO.class);
+            if (crossRefDTO == null || crossRefDTO.getMessage().getTitle() == null){
+                return Optional.empty();
+            }
+            return Optional.of(new ArticleDTO(crossRefDTO));
+        }catch (RestClientException e){
+            return Optional.of(new ArticleDTO(new CrossRefDTO()));
         }
-        return Optional.of(new ArticleDTO(crossRefDTO));
     }
 
     @Override
-    public Optional<ArticleDTO> getArticleFromURL(String doiURL) throws NoSuchArticleException {
+    public Optional<ArticleDTO> getArticleFromURL(String doiURL) throws InvalidResourceURLException {
         if (!doiURL.contains(DOI_DOMAIN)){
-            throw new NoSuchArticleException("Not DOI link");
+            throw new InvalidResourceURLException("Not DOI link");
         }
         String doi = doiURL.replace(DOI_DOMAIN, "");
         return this.getArticle(doi);

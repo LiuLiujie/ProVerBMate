@@ -5,7 +5,7 @@ import lombok.NonNull;
 import nl.utwente.proverb.domain.dto.github.GitHubRepoContributorDTO;
 import nl.utwente.proverb.domain.dto.github.GitHubRepoDTO;
 import nl.utwente.proverb.domain.dto.github.GitHubUserDTO;
-import nl.utwente.proverb.exceptions.NoSuchRepoException;
+import nl.utwente.proverb.exceptions.InvalidResourceURLException;
 import nl.utwente.proverb.service.GitHubService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -32,10 +32,10 @@ public class GitHubServiceImpl implements GitHubService {
     private RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public Optional<GitHubRepoDTO> getGitHubRepoDetail(String url) throws NoSuchRepoException {
+    public Optional<GitHubRepoDTO> getGitHubRepoDetail(String url) throws InvalidResourceURLException {
 
         if (!url.contains(GITHUB_DOMAIN)){
-            throw new NoSuchRepoException("Not Github URI link");
+            throw new InvalidResourceURLException("Not Github URI link");
         }
         String repoRestURL = url.replace(GITHUB_DOMAIN, GITHUB_REPO_API);
 
@@ -50,7 +50,7 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public Optional<GitHubRepoDTO> getGitHubRepo(@NonNull String repoRestURL) throws NoSuchRepoException{
+    public Optional<GitHubRepoDTO> getGitHubRepo(@NonNull String repoRestURL){
 
         RestTemplate restTemplate = this.getTemplateWithAuth();
         try {

@@ -2,7 +2,7 @@ package nl.utwente.proverb.service.impl;
 
 import nl.utwente.proverb.domain.dto.article.ArticleDTO;
 import nl.utwente.proverb.domain.dto.springer.SpringerDTO;
-import nl.utwente.proverb.exceptions.NoSuchArticleException;
+import nl.utwente.proverb.exceptions.InvalidResourceURLException;
 import nl.utwente.proverb.service.ArticleService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static nl.utwente.proverb.domain.api.ArticleAPI.DOI_DOMAIN;
@@ -27,23 +26,21 @@ public class SpringerServiceImpl implements ArticleService {
     private RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public Optional<ArticleDTO> getArticle(String doi) throws NoSuchArticleException {
+    public Optional<ArticleDTO> getArticle(String doi) {
 
         RestTemplate restTemplate = restTemplateBuilder.build();
-        var springerDTO = Objects.requireNonNullElseGet(
-                restTemplate.getForObject(getSpringerApi(doi), SpringerDTO.class),
-                ()-> {throw new NoSuchArticleException();});
-        if (springerDTO.getRecords().isEmpty()){
+        var springerDTO = restTemplate.getForObject(getSpringerApi(doi), SpringerDTO.class);
+        if (springerDTO == null || springerDTO.getRecords().isEmpty()){
             return Optional.empty();
         }
         return Optional.of(new ArticleDTO(springerDTO));
     }
 
     @Override
-    public Optional<ArticleDTO> getArticleFromURL(String doiURL) throws NoSuchArticleException {
+    public Optional<ArticleDTO> getArticleFromURL(String doiURL) throws InvalidResourceURLException {
 
         if (!doiURL.contains(DOI_DOMAIN)){
-            throw new NoSuchArticleException("Not DOI link");
+            throw new InvalidResourceURLException("Not DOI link");
         }
         String doi = doiURL.replace(DOI_DOMAIN, "");
         return this.getArticle(doi);
