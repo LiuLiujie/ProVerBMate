@@ -50,7 +50,7 @@ jobs:
       # Poll the ProverB
       - name: Curl Dataset
         run: |
-          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/daily/ontology.owl
+          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/manual/ProVerB.owl
           echo Curl Dataset success
 
       # Convert
@@ -68,7 +68,7 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "daily"
+          automatic_release_tag: "manual"
           prerelease: false
           title: "${{ steps.date.outputs.date }}"
           files: |
