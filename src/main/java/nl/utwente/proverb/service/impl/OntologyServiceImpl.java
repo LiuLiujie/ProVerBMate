@@ -64,8 +64,8 @@ public class OntologyServiceImpl implements OntologyService {
     }
 
     @Override
-    public void write() throws IOException {
-        File outputFile = new File("enriched_ontology.owl");
+    public void write(String name) throws IOException {
+        File outputFile = new File(name);
         if (!outputFile.exists()) {
             outputFile.createNewFile();
         }

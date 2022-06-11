@@ -23,5 +23,5 @@ public interface OntologyService {
 
     List<Resource> getAllArticles();
 
-    void write() throws IOException;
+    void write(String name) throws IOException;
 }

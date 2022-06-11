@@ -48,7 +48,7 @@ public class EnrichmentController {
 
     public void writeFile(){
         try {
-            ontologyService.write();
+            ontologyService.write("enriched_ProVerB.owl");
         }catch (IOException e){
             log.error("Write to file fail");
         }

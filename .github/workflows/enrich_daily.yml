@@ -73,5 +73,5 @@ jobs:
           prerelease: false
           title: "${{ steps.date.outputs.date }}"
           files: |
-            enriched_ontology.owl
+            enriched_ProVerB.owl
             *.jar
