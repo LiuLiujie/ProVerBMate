@@ -23,7 +23,7 @@ public class GitHubRepoDTO {
     private String contributorsRestURL;
 
     @JsonAlias({"pushed_at"})
-    private Date latestPush;
+    private Date lastCommit;
 
     private String repoRestURL;
 

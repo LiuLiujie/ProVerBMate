@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import nl.utwente.proverb.domain.ontology.PROVERB;
 import nl.utwente.proverb.service.GitHubService;
 import nl.utwente.proverb.service.OntologyService;
+import nl.utwente.proverb.util.DateUtil;
 import org.apache.jena.rdf.model.Resource;
 import org.springframework.stereotype.Controller;
 
@@ -25,6 +26,7 @@ public class RepositoryController {
             var dto = opt.get();
             ontologyService.addProperty(gitHubResource, PROVERB.P_NAME, dto.getRepoName());
             ontologyService.addProperty(gitHubResource, PROVERB.P_ABSTRACT, dto.getAbs());
+            ontologyService.addProperty(gitHubResource, PROVERB.P_LAST_COMMIT_DATE, DateUtil.getDate(dto.getLastCommit()));
             for (var contributor: dto.getContributors()){
                 var person = ontologyService.createContributor(contributor.getHomeHTMLURL(), gitHubResource);
                 var detail = contributor.getDetail();
