@@ -46,6 +46,14 @@ public class PROVERB {
 
     public static final Property P_CONTRIBUTOR = m.createProperty(URI, "contributor");
 
-    /*Since ontology v1.3*/
+    /*Since ontology v1.3.0*/
     public static final Property P_ORCID = m.createProperty(URI, "orcid");
+
+    /*Since ontology v1.4.0*/
+
+    public static final Property P_LAST_ACTIVITY_DATE = m.createProperty(URI, "lastActivityDate");
+
+    public static final Property P_LAST_COMMIT_DATE = m.createProperty(URI, "lastCommitDate");
+
+    public static final Property P_LAST_PUBLICATION_DATE = m.createProperty(URI, "lastPublicationDate");
 }
