@@ -29,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ProVerBMate
-          path: target/ProVerBMate-1.0.jar
+          path: target/ProVerBMate-1.4.0.jar
 
   enrich:
     needs: build
@@ -50,14 +50,14 @@ jobs:
       # Poll the ProverB
       - name: Curl Dataset
         run: |
-          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/manual/ProVerB.owl
+          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/manual/ProVerB_1.4.0.owl
           echo Curl Dataset success
 
       # Convert
       - name: Enrichment
         run: |
-          chmod 0755 ProVerBMate-1.0.jar
-          java -jar ProVerBMate-1.0.jar --spring.profiles.active=daily --github-token=${{secrets.GIT_API}} --springer-key=${{secrets.SPRINGER_KEY}} --cross-ref.mailto=${{secrets.CROSS_REF}}
+          chmod 0755 ProVerBMate-1.4.0.jar
+          java -jar ProVerBMate-1.4.0.jar --spring.profiles.active=daily --github-token=${{secrets.GIT_API}} --springer-key=${{secrets.SPRINGER_KEY}} --cross-ref.mailto=${{secrets.CROSS_REF}}
           echo Enrichment success.
 
       # Release
@@ -72,5 +72,5 @@ jobs:
           prerelease: false
           title: "${{ steps.date.outputs.date }}"
           files: |
-            enriched_ProVerB.owl
+            enriched_ProVerB_1.4.0.owl
             *.jar

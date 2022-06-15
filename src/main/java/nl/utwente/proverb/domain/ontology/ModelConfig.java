@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class ModelConfig {
 
     @Value("${model.proverb}")
-    private String filePath;
+    private String fileName;
 
     @Bean
     public Model loadProVerBModel() {
         var model = ModelFactory.createDefaultModel();
-        model.read(filePath);
+        model.read(fileName);
         return model;
     }
 }

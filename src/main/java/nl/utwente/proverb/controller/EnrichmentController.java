@@ -2,6 +2,7 @@ package nl.utwente.proverb.controller;
 
 import lombok.extern.log4j.Log4j2;
 import nl.utwente.proverb.service.OntologyService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +14,9 @@ import java.util.Map;
 @Log4j2
 @RestController
 public class EnrichmentController {
+
+    @Value("${model.proverb}")
+    private String oldFileName;
 
     @Resource
     private RepositoryController repositoryController;
@@ -48,7 +52,7 @@ public class EnrichmentController {
 
     public void writeFile(){
         try {
-            ontologyService.write("enriched_ProVerB.owl");
+            ontologyService.write("enriched_"+oldFileName);
         }catch (IOException e){
             log.error("Write to file fail");
         }
