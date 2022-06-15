@@ -5,7 +5,6 @@ import nl.utwente.proverb.service.OntologyService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
@@ -56,20 +55,5 @@ public class EnrichmentController {
         }catch (IOException e){
             log.error("Write to file fail");
         }
-    }
-
-    @PostConstruct
-    void execution(){
-        log.info("Enrichment start");
-
-        log.info("Enrich Repository");
-        this.enrichRepository();
-        log.info("Enrich Articles");
-        this.enrichArticles();
-        log.info("Enrichment end");
-
-        log.info("Start to write file");
-        this.writeFile();
-        log.info("All jobs succeed");
     }
 }
