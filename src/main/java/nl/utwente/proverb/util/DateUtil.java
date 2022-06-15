@@ -9,9 +9,9 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtil {
 
-    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String TIME_FORMAT = "dd MMM yyyy HH:mm:ss";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_FORMAT = "dd MMM yyyy";
 
     public static String getDate(Date date) {
         var sdfTimeFormat = new SimpleDateFormat(DATE_FORMAT);
