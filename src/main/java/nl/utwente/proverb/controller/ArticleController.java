@@ -41,8 +41,8 @@ public class ArticleController {
             success = enrichUsingCrossRef(articleResource, opt.get());
             if (success){
                 log.info("Successfully enrich article using crossref");
+                return true;
             }
-            return true;
         }
         log.error("Enriching article: {} fail", url);
         return false;

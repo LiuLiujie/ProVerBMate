@@ -45,7 +45,7 @@ public class EnrichmentController {
         log.info("{} repositories in total, {} Success", repoNum, repoSuccess);
 
         int artiNum = artiResult.size();
-        int artiSuccess = this.getSuccessNum(repoResult);
+        int artiSuccess = this.getSuccessNum(artiResult);
         log.info("{} articles in total, {} Success", artiNum, artiSuccess);
         log.info("All jobs succeed");
     }
