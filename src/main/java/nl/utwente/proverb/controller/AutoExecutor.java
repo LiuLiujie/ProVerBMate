@@ -18,16 +18,6 @@ public class AutoExecutor {
 
     @PostConstruct
     public void execute(){
-        log.info("Enrichment start");
-
-        log.info("Enrich Repository");
-        enrichmentController.enrichRepository();
-        log.info("Enrich Articles");
-        enrichmentController.enrichArticles();
-        log.info("Enrichment end");
-
-        log.info("Start to write file");
-        enrichmentController.writeFile();
-        log.info("All jobs succeed");
+       enrichmentController.enrich();
     }
 }

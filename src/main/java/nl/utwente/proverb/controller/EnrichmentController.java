@@ -26,6 +26,30 @@ public class EnrichmentController {
     @Resource
     private OntologyService ontologyService;
 
+    public void enrich() {
+        log.info("Enrichment start");
+
+        log.info("Enrich Repository");
+        var repoResult = this.enrichRepository();
+
+        log.info("Enrich Articles");
+        var artiResult = this.enrichArticles();
+        log.info("Enrichment end");
+
+        log.info("Start to write file");
+        this.writeFile();
+
+        log.info("Generate matrices");
+        int repoNum = repoResult.size();
+        int repoSuccess = this.getSuccessNum(repoResult);
+        log.info("{} repositories in total, {} Success", repoNum, repoSuccess);
+
+        int artiNum = artiResult.size();
+        int artiSuccess = this.getSuccessNum(repoResult);
+        log.info("{} articles in total, {} Success", artiNum, artiSuccess);
+        log.info("All jobs succeed");
+    }
+
 
     public Map<String, Boolean> enrichRepository(){
         var repoResources = ontologyService.getAllRepositories();
@@ -55,5 +79,16 @@ public class EnrichmentController {
         }catch (IOException e){
             log.error("Write to file fail");
         }
+    }
+
+    private int getSuccessNum(Map<String, Boolean> map){
+        var keys = map.keySet();
+        int success = 0;
+        for (var key : keys){
+            if (Boolean.TRUE.equals(map.get(key))){
+                success++;
+            }
+        }
+        return success;
     }
 }
