@@ -38,7 +38,7 @@ public class Author {
 
     public String getName() {
         if (given != null && family != null){
-            return family + " " +given;
+            return given + " "+ family;
         } else {
             return name;
         }
