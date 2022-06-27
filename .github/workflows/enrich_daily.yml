@@ -51,7 +51,7 @@ jobs:
       # Poll the ProverB
       - name: Curl Dataset
         run: |
-          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/daily/ProVerB_1.4.0.owl
+          curl -LJO https://github.com/LiuLiujie/ProVerBMate-P2RConverter/releases/download/daily/extracted_ProVerB_1.4.0.owl
           echo Curl Dataset success
 
       # Convert

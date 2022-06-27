@@ -75,7 +75,8 @@ public class EnrichmentController {
 
     public void writeFile(){
         try {
-            ontologyService.write("enriched_"+oldFileName);
+            var filename = oldFileName.replace("extracted", "enriched");
+            ontologyService.write(filename);
         }catch (IOException e){
             log.error("Write to file fail");
         }
