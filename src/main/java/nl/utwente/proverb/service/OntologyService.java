@@ -2,6 +2,8 @@ package nl.utwente.proverb.service;
 
 
 import lombok.NonNull;
+import nl.utwente.proverb.domain.dto.evaluate.QueryResult;
+import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.springframework.lang.Nullable;
@@ -15,6 +17,8 @@ public interface OntologyService {
 
     void addProperty(Resource resource, Property property,@NonNull Resource object);
 
+    void addSameAs(Resource domain, Resource range);
+
     Resource createContributor(String githubHTMLURL, Resource gitHubResource);
 
     Resource createWriter(Resource articleResource, String name);
@@ -22,6 +26,8 @@ public interface OntologyService {
     List<Resource> getAllRepositories();
 
     List<Resource> getAllArticles();
+
+    QueryResult executeSPARQLQuery(Query query);
 
     void write(String name) throws IOException;
 }
