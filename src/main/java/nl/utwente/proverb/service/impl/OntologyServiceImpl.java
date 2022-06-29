@@ -2,19 +2,20 @@ package nl.utwente.proverb.service.impl;
 
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import nl.utwente.proverb.domain.dto.evaluate.QueryResult;
 import nl.utwente.proverb.domain.ontology.PROVERB;
 import nl.utwente.proverb.service.OntologyService;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -33,6 +34,11 @@ public class OntologyServiceImpl implements OntologyService {
     @Override
     public void addProperty(Resource resource, Property property, @NonNull Resource object) {
         resource.addProperty(property, object);
+    }
+
+    @Override
+    public void addSameAs(Resource domain, Resource range) {
+        domain.addProperty(OWL.sameAs, range);
     }
 
     @Override
@@ -61,6 +67,36 @@ public class OntologyServiceImpl implements OntologyService {
     public List<Resource> getAllArticles() {
         var p = model.listSubjectsWithProperty(RDF.type, PROVERB.R_ARTICLE);
         return p.toList();
+    }
+
+    @Override
+    public QueryResult executeSPARQLQuery(Query query) {
+        QueryResult queryResult = new QueryResult();
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+            var results = qexec.execSelect();
+
+            /*Handle query result*/
+            //Set property
+            queryResult.setProperties(results.getResultVars());
+            //Set value
+            var proNum = queryResult.getProperties().size();
+            var rowNum = results.getRowNumber();
+            //Get columns
+            Map<String, List<RDFNode>> values = new HashMap<>(proNum);
+            for (String property : queryResult.getProperties()){
+                values.put(property ,new ArrayList<>(rowNum));
+            }
+            //Set the values to corresponding column
+            while (results.hasNext()){
+                QuerySolution solution = results.nextSolution();
+                for (Iterator<String> it = solution.varNames(); it.hasNext();) {
+                    String name = it.next();
+                    values.get(name).add(solution.get(name));
+                }
+            }
+            queryResult.setValues(values);
+        }
+        return queryResult;
     }
 
     @Override

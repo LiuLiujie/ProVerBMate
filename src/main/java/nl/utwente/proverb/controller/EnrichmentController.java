@@ -1,6 +1,7 @@
 package nl.utwente.proverb.controller;
 
 import lombok.extern.log4j.Log4j2;
+import nl.utwente.proverb.service.EvaluateService;
 import nl.utwente.proverb.service.OntologyService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,9 @@ public class EnrichmentController {
     @Resource
     private OntologyService ontologyService;
 
+    @Resource
+    private EvaluateController evaluateController;
+
     public void enrich() {
         log.info("Enrichment start");
 
@@ -35,6 +39,10 @@ public class EnrichmentController {
         log.info("Enrich Articles");
         var artiResult = this.enrichArticles();
         log.info("Enrichment end");
+
+        log.info("Start to evaluate result");
+        var evalResult = evaluateController.evaluate();
+        log.info("Evaluation end");
 
         log.info("Start to write file");
         this.writeFile();
@@ -47,6 +55,11 @@ public class EnrichmentController {
         int artiNum = artiResult.size();
         int artiSuccess = this.getSuccessNum(artiResult);
         log.info("{} articles in total, {} Success", artiNum, artiSuccess);
+
+        var keys = evalResult.keySet();
+        for (var key : keys){
+            log.info("{} relationships are explored in template issue: {}", evalResult.get(key), key);
+        }
         log.info("All jobs succeed");
     }
 
@@ -75,8 +88,12 @@ public class EnrichmentController {
 
     public void writeFile(){
         try {
-            var filename = oldFileName.replace("extracted", "enriched");
-            ontologyService.write(filename);
+            if (oldFileName.contains("extracted")){
+                var filename = oldFileName.replace("extracted", "enriched");
+                ontologyService.write(filename);
+            }else {
+                ontologyService.write("enriched_ProVerB.owl");
+            }
         }catch (IOException e){
             log.error("Write to file fail");
         }

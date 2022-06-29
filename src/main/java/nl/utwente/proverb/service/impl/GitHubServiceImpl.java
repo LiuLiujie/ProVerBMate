@@ -4,12 +4,14 @@ import lombok.NonNull;
 
 import nl.utwente.proverb.domain.dto.github.GitHubRepoContributorDTO;
 import nl.utwente.proverb.domain.dto.github.GitHubRepoDTO;
+import nl.utwente.proverb.domain.dto.github.GitHubRepoIssueDTO;
 import nl.utwente.proverb.domain.dto.github.GitHubUserDTO;
 import nl.utwente.proverb.exceptions.InvalidResourceURLException;
 import nl.utwente.proverb.service.GitHubService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -57,6 +59,20 @@ public class GitHubServiceImpl implements GitHubService {
             return Optional.ofNullable(restTemplate.getForObject(repoRestURL, GitHubRepoDTO.class));
         } catch (RestClientException e){
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<GitHubRepoIssueDTO> getGitHubRepoIssues(@NonNull String issueRestURL,@Nullable String state, @Nullable String labels) {
+        RestTemplate restTemplate = this.getTemplateWithAuth();
+        String url = issueRestURL
+                + (state == null ? "?state=open" : "?state="+state)
+                + (labels == null ? "" : "&labels="+labels);
+        try {
+            var issues = Optional.ofNullable(restTemplate.getForObject(url, GitHubRepoIssueDTO[].class));
+            return issues.map(issue -> new ArrayList<>(List.of(issue))).orElseGet(ArrayList::new);
+        }catch (RestClientException e){
+            return new ArrayList<>();
         }
     }
 
