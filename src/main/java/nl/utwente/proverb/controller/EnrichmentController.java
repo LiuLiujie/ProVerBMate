@@ -75,8 +75,12 @@ public class EnrichmentController {
 
     public void writeFile(){
         try {
-            var filename = oldFileName.replace("extracted", "enriched");
-            ontologyService.write(filename);
+            if (oldFileName.contains("extracted")){
+                var filename = oldFileName.replace("extracted", "enriched");
+                ontologyService.write(filename);
+            }else {
+                ontologyService.write("enriched_ProVerB.owl");
+            }
         }catch (IOException e){
             log.error("Write to file fail");
         }
