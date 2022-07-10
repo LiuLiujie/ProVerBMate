@@ -1,7 +1,7 @@
 name: Daily Auto Enrichment
 
 on:
-  # Auto run every sunday at 4 AM
+  # Auto run every saturday at 4 AM
   schedule:
     - cron: '0 4 * * 6'
 
