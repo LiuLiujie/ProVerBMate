@@ -2,8 +2,8 @@ name: Daily Auto Enrichment
 
 on:
   # Auto run every saturday at 4 AM
-  schedule:
-    - cron: '0 4 * * 6'
+  # schedule:
+  #   - cron: '0 4 * * 6'
 
 jobs:
   build:
