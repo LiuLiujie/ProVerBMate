@@ -250,7 +250,7 @@
         <ontology:relatedpaper rdf:resource="https://doi.org/10.1007/978-3-642-28891-3_13"/>
         <ontology:relatedpaper rdf:resource="https://doi.org/10.1016/j.ress.2021.107649"/>
         <ontology:repository rdf:resource="https://github.com/loonwerks/AGREE"/>
-        <ontology:abstract xml:lang="en">checks properties against an AADL model</ontology:abstract>
+        <ontology:abstract>checks properties against an AADL model</ontology:abstract>
         <ontology:name>AGREE: Assume Guarantee Reasoning Environment</ontology:name>
     </owl:NamedIndividual>
     
@@ -354,11 +354,6 @@
 
     <owl:NamedIndividual rdf:about="https://github.com/loonwerks/AGREE">
         <rdf:type rdf:resource="http://slebok.github.io/proverb/ontology#Repository"/>
-        <ontology:abstract>Assume-Guarantee REasoning Environment</ontology:abstract>
-        <ontology:abstract xml:lang="en">Assume-Guarantee REasoning Environment</ontology:abstract>
-        <ontology:lastCommitDate>20 May 2022</ontology:lastCommitDate>
-        <ontology:name>AGREE</ontology:name>
-        <ontology:name xml:lang="en">AGREE</ontology:name>
     </owl:NamedIndividual>
     
 
