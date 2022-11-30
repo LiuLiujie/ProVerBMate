@@ -31,8 +31,16 @@ public class OntologyServiceImpl implements OntologyService {
     @Override
     public void addProperty(Resource resource, Property property, @Nullable String literal) {
         if (literal != null && !literal.isBlank()){
-            resource.addProperty(property, literal);
+            resource.addProperty(property, literal.trim());
         }
+    }
+
+    public void addUniqueProperty(Resource resource, Property property, @Nullable String literal){
+        if (resource.hasProperty(property)){
+            var p = resource.getProperty(property);
+            resource.getModel().remove(p);
+        }
+        this.addProperty(resource, property, literal);
     }
 
     @Override

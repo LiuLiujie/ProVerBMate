@@ -27,14 +27,14 @@ public class CrossRefHandler extends ArticleHandler{
             return handleNext(url, articleResource);
         }
         var dto = dtoOpt.get();
-        ontologyService.addProperty(articleResource, PROVERB.P_NAME, dto.getTitle());
-        ontologyService.addProperty(articleResource, PROVERB.P_ABSTRACT, dto.getAbs());
+        ontologyService.addUniqueProperty(articleResource, PROVERB.P_NAME, dto.getTitle());
+        ontologyService.addUniqueProperty(articleResource, PROVERB.P_ABSTRACT, dto.getAbs());
         for (var author : dto.getAuthors()){
             var writer = ontologyService.createWriter(articleResource, author.getName());
-            ontologyService.addProperty(writer, PROVERB.P_NAME, author.getName());
+            ontologyService.addUniqueProperty(writer, PROVERB.P_NAME, author.getName());
             if (author.getOrcid() != null){
                 //Only some authors have orcid.
-                ontologyService.addProperty(writer, PROVERB.P_ORCID, author.getOrcid());
+                ontologyService.addUniqueProperty(writer, PROVERB.P_ORCID, author.getOrcid());
             }
         }
         log.info("Article Crossref handler success");

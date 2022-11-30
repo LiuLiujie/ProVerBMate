@@ -24,5 +24,8 @@ public class GitHubRepoDTO {
     @JsonAlias({"pushed_at"})
     private Date lastCommit;
 
+    @JsonAlias({"default_branch"})
+    private String defaultBranch;
+
     private String repoRestURL;
 }

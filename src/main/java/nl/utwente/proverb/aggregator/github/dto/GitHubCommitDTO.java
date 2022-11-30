@@ -5,18 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Setter
 @Getter
 @NoArgsConstructor
-public class GitHubOrgDTO {
+public class GitHubCommitDTO {
 
-    @JsonAlias("name")
-    private String name;
+    private String sha;
 
-    private String description;
+    private String url;
 
-    @JsonAlias("updated_at")
-    private Date lastActivity;
+    @JsonAlias("commit")
+    private GitHubCommitInfoDTO commitInfo;
 }

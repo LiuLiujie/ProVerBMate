@@ -29,14 +29,20 @@ public class GitHubOrganizationHandler extends GitHubHandler{
         }
         log.info("GitHub Org handler start: {}", url);
         var orgName = getOrganizationName(url);
-        var orgURL = GitHubAPI.GITHUB_API_GET_ORG+"/"+orgName;
+        if (orgName.isEmpty()){
+            log.error("GitHub Org get name fail, url: {}", url);
+            return false;
+        }
+        var orgURL = "https://"+GitHubAPI.GITHUB_API_GET_ORG+"/"+orgName.get();
         var dtoOpt = this.githubService.getGitHubOrg(orgURL);
         if (dtoOpt.isEmpty()){
             log.error("GitHub Org fail, url: {}", url);
             return false;
         }
         var dto = dtoOpt.get();
-        ontologyService.addProperty(githubResource, PROVERB.P_LAST_ACTIVITY_DATE, DateUtil.getDate(dto.getLastActivity()));
+        ontologyService.addUniqueProperty(githubResource, PROVERB.P_NAME, dto.getName());
+        ontologyService.addUniqueProperty(githubResource, PROVERB.P_ABSTRACT, dto.getDescription());
+        ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_ACTIVITY_DATE, DateUtil.getDate(dto.getLastActivity()));
         log.info("GitHub Org handler success");
         return true;
     }

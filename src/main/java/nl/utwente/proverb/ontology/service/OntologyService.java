@@ -8,12 +8,13 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.springframework.lang.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface OntologyService {
 
     void addProperty(Resource resource, Property property,@Nullable String literal);
+
+    void addUniqueProperty(Resource resource, Property property, @Nullable String literal);
 
     void addProperty(Resource resource, Property property,@NonNull Resource object);
 

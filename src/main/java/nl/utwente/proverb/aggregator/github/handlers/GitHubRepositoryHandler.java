@@ -1,6 +1,7 @@
 package nl.utwente.proverb.aggregator.github.handlers;
 
 import lombok.extern.log4j.Log4j2;
+import nl.utwente.proverb.aggregator.github.dto.GitHubBranchDTO;
 import nl.utwente.proverb.aggregator.github.dto.GitHubRepoDTO;
 import nl.utwente.proverb.aggregator.github.service.GitHubService;
 import nl.utwente.proverb.ontology.service.OntologyService;
@@ -31,12 +32,16 @@ public class GitHubRepositoryHandler extends GitHubHandler{
             return handleNext(url, githubResource);
         }
         log.info("GitHub Repo handler start: {}", url);
-        var optGitHubRepoDTO = handleRepoInfo(url, githubResource);
+        var repoRestURL = url.replace(GITHUB_DOMAIN, GITHUB_API_GET_REPO);
+        var optGitHubRepoDTO = handleRepoInfo(repoRestURL, githubResource);
         if (optGitHubRepoDTO.isEmpty()){
             log.error("GitHub Repo fail, url: {}", url);
             return handleNext(url, githubResource);
         }
-        handleContributor(optGitHubRepoDTO.get(), githubResource);
+        var repoDTO = optGitHubRepoDTO.get();
+        handleContributor(repoDTO, githubResource);
+        var branchRestURL = repoRestURL + "/branches/"+repoDTO.getDefaultBranch();
+        handelRepoBranch(branchRestURL, githubResource);
         log.info("GitHub Repo handler success");
         return true;
     }
@@ -48,23 +53,32 @@ public class GitHubRepositoryHandler extends GitHubHandler{
         return sp.length == 2;
     }
 
-    private Optional<GitHubRepoDTO> handleRepoInfo(String url, Resource githubResource) {
+    protected Optional<GitHubRepoDTO> handleRepoInfo(String repoRestURL, Resource githubResource) {
 
-        var repoRestURL = url.replace(GITHUB_DOMAIN, GITHUB_API_GET_REPO);
         var dtoOpt = this.githubService.getGitHubRepository(repoRestURL);
         if (dtoOpt.isEmpty()){
-            log.error("GitHub Repo Info fail, url: {}", url);
             return Optional.empty();
         }
         var dto = dtoOpt.get();
         dto.setRepoRestURL(repoRestURL);
-        this.ontologyService.addProperty(githubResource, PROVERB.P_NAME, dto.getRepoName());
-        this.ontologyService.addProperty(githubResource, PROVERB.P_ABSTRACT, dto.getAbs());
-        this.ontologyService.addProperty(githubResource, PROVERB.P_LAST_COMMIT_DATE, DateUtil.getDate(dto.getLastCommit()));
+        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_NAME, dto.getRepoName());
+        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_ABSTRACT, dto.getAbs());
+        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_ACTIVITY_DATE, DateUtil.getDate(dto.getLastCommit()));
         return dtoOpt;
     }
 
-    private void handleContributor(GitHubRepoDTO repoDTO, Resource githubResource) {
+    protected Optional<GitHubBranchDTO> handelRepoBranch(String branchRestURL, Resource githubResource){
+        var dtoOpt = this.githubService.getGitHubBranch(branchRestURL);
+        if (dtoOpt.isEmpty()){
+            return Optional.empty();
+        }
+        var dto = dtoOpt.get();
+        var lastCommitTime = dto.getCommit().getCommitInfo().getAuthor().getDate();
+        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_COMMIT_DATE, DateUtil.getDate(lastCommitTime));
+        return dtoOpt;
+    }
+
+    protected void handleContributor(GitHubRepoDTO repoDTO, Resource githubResource) {
         var dtoOpt = this.githubService.getGitHubRepoContributors(repoDTO.getContributorsRestURL());
         if (dtoOpt.isEmpty()){
             return;
@@ -77,8 +91,8 @@ public class GitHubRepositoryHandler extends GitHubHandler{
             var person = this.ontologyService.createContributor(contributor.getHomeHTMLURL(), githubResource);
             var detail = contributor.getDetail();
             if (detail != null){
-                this.ontologyService.addProperty(person, PROVERB.P_NAME, detail.getName());
-                this.ontologyService.addProperty(person, PROVERB.P_ABSTRACT, detail.getAbs());
+                this.ontologyService.addUniqueProperty(person, PROVERB.P_NAME, detail.getName());
+                this.ontologyService.addUniqueProperty(person, PROVERB.P_ABSTRACT, detail.getAbs());
             }
         }
     }

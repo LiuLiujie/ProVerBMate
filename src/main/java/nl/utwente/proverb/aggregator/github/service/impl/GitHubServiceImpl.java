@@ -2,10 +2,7 @@ package nl.utwente.proverb.aggregator.github.service.impl;
 
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import nl.utwente.proverb.aggregator.github.dto.GitHubOrgDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubRepoContributorDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubRepoDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubUserDTO;
+import nl.utwente.proverb.aggregator.github.dto.*;
 import nl.utwente.proverb.aggregator.github.service.GitHubService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -32,6 +29,15 @@ public class GitHubServiceImpl implements GitHubService {
     public Optional<GitHubRepoDTO> getGitHubRepository(@NonNull String repoRestURL) {
         try {
             return Optional.ofNullable(this.getTemplateWithAuth().getForObject(repoRestURL, GitHubRepoDTO.class));
+        } catch (RestClientException e){
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<GitHubBranchDTO> getGitHubBranch(@NonNull String branchRestURL) {
+        try {
+            return Optional.ofNullable(this.getTemplateWithAuth().getForObject(branchRestURL, GitHubBranchDTO.class));
         } catch (RestClientException e){
             return Optional.empty();
         }

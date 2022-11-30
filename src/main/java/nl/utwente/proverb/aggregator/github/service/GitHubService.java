@@ -1,10 +1,7 @@
 package nl.utwente.proverb.aggregator.github.service;
 
 import lombok.NonNull;
-import nl.utwente.proverb.aggregator.github.dto.GitHubOrgDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubRepoContributorDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubRepoDTO;
-import nl.utwente.proverb.aggregator.github.dto.GitHubUserDTO;
+import nl.utwente.proverb.aggregator.github.dto.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +9,8 @@ import java.util.Optional;
 public interface GitHubService {
 
     Optional<GitHubRepoDTO> getGitHubRepository(@NonNull String repoRestURL);
+
+    Optional<GitHubBranchDTO> getGitHubBranch(@NonNull String branchRestURL);
 
     List<GitHubRepoContributorDTO> getGitHubRepoContributors(@NonNull String contributorRestURL);
 
