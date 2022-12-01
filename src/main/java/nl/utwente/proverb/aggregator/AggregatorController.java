@@ -7,7 +7,6 @@ import nl.utwente.proverb.aggregator.github.GitHubAggregator;
 import nl.utwente.proverb.ontology.service.OntologyService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +24,13 @@ public class AggregatorController {
     @Resource
     private OntologyService ontologyService;
 
-    @PostConstruct
     public void aggregate() {
         var resultRepo = this.aggregateGitHub();
         var resultArticle = this.aggregateArticle();
         ontologyService.write();
     }
 
-    public Map<String, Boolean> aggregateGitHub(){
+    private Map<String, Boolean> aggregateGitHub(){
         var repoResources = ontologyService.getAllRepositories();
         var result = new HashMap<String, Boolean>(repoResources.size());
         for (var resource: repoResources){
@@ -43,7 +41,7 @@ public class AggregatorController {
         return result;
     }
 
-    public Map<String, Boolean> aggregateArticle(){
+    private Map<String, Boolean> aggregateArticle(){
         var articleResources = ontologyService.getAllArticles();
         var result = new HashMap<String, Boolean>(articleResources.size());
         for (var resource: articleResources){

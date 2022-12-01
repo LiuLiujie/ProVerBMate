@@ -1,7 +1,6 @@
 package nl.utwente.proverb.aggregator.github.handlers;
 
 import lombok.extern.log4j.Log4j2;
-import nl.utwente.proverb.aggregator.github.dto.GitHubBranchDTO;
 import nl.utwente.proverb.aggregator.github.dto.GitHubRepoDTO;
 import nl.utwente.proverb.aggregator.github.service.GitHubService;
 import nl.utwente.proverb.ontology.service.OntologyService;
@@ -55,45 +54,57 @@ public class GitHubRepositoryHandler extends GitHubHandler{
 
     protected Optional<GitHubRepoDTO> handleRepoInfo(String repoRestURL, Resource githubResource) {
 
-        var dtoOpt = this.githubService.getGitHubRepository(repoRestURL);
-        if (dtoOpt.isEmpty()){
+        try {
+            var dtoOpt = this.githubService.getGitHubRepository(repoRestURL);
+            if (dtoOpt.isEmpty()){
+                return Optional.empty();
+            }
+            var dto = dtoOpt.get();
+            dto.setRepoRestURL(repoRestURL);
+            this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_NAME, dto.getRepoName());
+            this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_ABSTRACT, dto.getAbs());
+            this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_ACTIVITY_DATE, DateUtil.getDate(dto.getLastCommit()));
+            return dtoOpt;
+        }catch (Exception e){
+            log.error(e.getStackTrace());
             return Optional.empty();
         }
-        var dto = dtoOpt.get();
-        dto.setRepoRestURL(repoRestURL);
-        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_NAME, dto.getRepoName());
-        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_ABSTRACT, dto.getAbs());
-        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_ACTIVITY_DATE, DateUtil.getDate(dto.getLastCommit()));
-        return dtoOpt;
+
     }
 
-    protected Optional<GitHubBranchDTO> handelRepoBranch(String branchRestURL, Resource githubResource){
-        var dtoOpt = this.githubService.getGitHubBranch(branchRestURL);
-        if (dtoOpt.isEmpty()){
-            return Optional.empty();
+    protected void handelRepoBranch(String branchRestURL, Resource githubResource){
+        try {
+            var dtoOpt = this.githubService.getGitHubBranch(branchRestURL);
+            if (dtoOpt.isPresent()){
+                var dto = dtoOpt.get();
+                var lastCommitTime = dto.getCommit().getCommitInfo().getAuthor().getDate();
+                this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_COMMIT_DATE, DateUtil.getDate(lastCommitTime));
+            }
+        }catch (Exception e){
+            log.error(e.getStackTrace());
         }
-        var dto = dtoOpt.get();
-        var lastCommitTime = dto.getCommit().getCommitInfo().getAuthor().getDate();
-        this.ontologyService.addUniqueProperty(githubResource, PROVERB.P_LAST_COMMIT_DATE, DateUtil.getDate(lastCommitTime));
-        return dtoOpt;
     }
 
     protected void handleContributor(GitHubRepoDTO repoDTO, Resource githubResource) {
-        var dtoOpt = this.githubService.getGitHubRepoContributors(repoDTO.getContributorsRestURL());
-        if (dtoOpt.isEmpty()){
-            return;
-        }
-        for (var contributor : dtoOpt){
-            var user = this.githubService.getGitHubUser(contributor.getHomeRestURL());
-            user.ifPresent(contributor::setDetail);
-        }
-        for (var contributor: dtoOpt){
-            var person = this.ontologyService.createContributor(contributor.getHomeHTMLURL(), githubResource);
-            var detail = contributor.getDetail();
-            if (detail != null){
-                this.ontologyService.addUniqueProperty(person, PROVERB.P_NAME, detail.getName());
-                this.ontologyService.addUniqueProperty(person, PROVERB.P_ABSTRACT, detail.getAbs());
+        try {
+            var dtoOpt = this.githubService.getGitHubRepoContributors(repoDTO.getContributorsRestURL());
+            if (dtoOpt.isEmpty()){
+                return;
             }
+            for (var contributor : dtoOpt){
+                var user = this.githubService.getGitHubUser(contributor.getHomeRestURL());
+                user.ifPresent(contributor::setDetail);
+            }
+            for (var contributor: dtoOpt){
+                var person = this.ontologyService.createContributor(contributor.getHomeHTMLURL(), githubResource);
+                var detail = contributor.getDetail();
+                if (detail != null){
+                    this.ontologyService.addUniqueProperty(person, PROVERB.P_NAME, detail.getName());
+                    this.ontologyService.addUniqueProperty(person, PROVERB.P_ABSTRACT, detail.getAbs());
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getStackTrace());
         }
     }
 }

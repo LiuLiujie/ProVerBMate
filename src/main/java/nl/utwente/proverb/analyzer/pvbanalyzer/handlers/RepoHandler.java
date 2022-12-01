@@ -5,9 +5,10 @@ import nl.utwente.proverb.analyzer.pvbanalyzer.entities.Repository;
 import nl.utwente.proverb.analyzer.pvbanalyzer.mdparser.MDTool;
 import nl.utwente.proverb.analyzer.pvbanalyzer.mdparser.MDToolTemplate;
 import nl.utwente.proverb.ontology.PROVERB;
-import nl.utwente.proverb.ontology.PVBModel;
+import nl.utwente.proverb.ontology.service.OntologyService;
 import nl.utwente.proverb.util.DateUtil;
 import nl.utwente.proverb.util.EscapeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
@@ -20,15 +21,15 @@ public class RepoHandler implements BaseHandler {
 
     private final Resource tool;
 
-    private final PVBModel model;
+    private final OntologyService ontologyService;
 
     private final List<String> mdRepositories;
 
     private final List<String> lastCommitDate;
 
-    public RepoHandler(PVBModel model, MDTool mdTool) {
-        this.model = model;
-        this.tool = model.getTool(mdTool.getName());
+    public RepoHandler(OntologyService ontologyService, MDTool mdTool) {
+        this.ontologyService = ontologyService;
+        this.tool = ontologyService.getToolResource(mdTool.getName());
         var urIs = mdTool.getProperty(MDToolTemplate.URIS);
         this.mdRepositories = extractMDGitHubRepository(urIs);
         this.lastCommitDate = mdTool.getProperty(MDToolTemplate.LAST_COMMIT_DATE);
@@ -36,7 +37,7 @@ public class RepoHandler implements BaseHandler {
 
     @Override
     public void autoEnrichment() {
-        this.updateLastCommitDate();
+        this.updateMDLastCommitDate();
     }
 
     @Override
@@ -44,32 +45,60 @@ public class RepoHandler implements BaseHandler {
 
     }
 
-    public void updateLastCommitDate() {
-        var repos = getPaperEntities(this.model, this.tool);
+    public void updateMDLastCommitDate() {
+        //Fetch MD date
+        var repos = getRepoEntities(this.tool);
         if (repos.isEmpty()){
             return;
         }
+
+        //Update last commit date for default branch
         var reposWithLastCommitDate = repos.stream()
-                .filter(repo -> repo.getLastCommitDate()!=null
-                        && !repo.getLastCommitDate().isEmpty()
-                        && DateUtil.formatDate(repo.getLastCommitDate()) != null)
+                .filter(repo ->
+                        repo.getLastCommitDate() !=null &&
+                        !repo.getLastCommitDate().isEmpty() &&
+                        DateUtil.formatDate(repo.getLastCommitDate()) != null)
                 .collect(Collectors.toList());
-        if (reposWithLastCommitDate.isEmpty()){
-            return;
-        }
-        var latest = DateUtil.formatDate(reposWithLastCommitDate.get(0).getLastCommitDate());
-        for (var repo : reposWithLastCommitDate){
-            var curDate = DateUtil.formatDate(repo.getLastCommitDate());
-            assert curDate != null;
-            if (curDate.after(latest)){
-                latest = curDate;
+        if (!reposWithLastCommitDate.isEmpty()) {
+            this.lastCommitDate.clear();
+            //Only one repo: update for default branch
+            if (reposWithLastCommitDate.size() == 1){
+                var date = DateUtil.formatDate(reposWithLastCommitDate.get(0).getLastCommitDate());
+                if (date != null){
+                    this.lastCommitDate.add(DateUtil.getDate(date) + " (default branch)");
+                }
+            }else{
+                //Multi repos: multi dates
+                for (var repo : reposWithLastCommitDate){
+                    var date = DateUtil.formatDate(repo.getLastCommitDate());
+                    if (date != null) {
+                        this.lastCommitDate.add(repo.getName()+": "+DateUtil.getDate(date) + " (default branch)");
+                    }
+                }
             }
         }
-        if (lastCommitDate.isEmpty()){
-            lastCommitDate.add(DateUtil.getDate(latest));
-        }else if (DateUtil.formatDate(lastCommitDate.get(0)) == null
-                || DateUtil.formatDate(lastCommitDate.get(0)).before(latest)){
-            lastCommitDate.set(0, DateUtil.getDate(latest));
+
+        //Update last activity Date: only one for single tool
+        var reposWithLastActivityDate = repos.stream()
+                .filter(repo ->
+                        !StringUtils.isBlank(repo.getLastActivityDate()) &&
+                                DateUtil.formatDate(repo.getLastActivityDate()) != null)
+                .collect(Collectors.toList());
+        if (!reposWithLastActivityDate.isEmpty()){
+            var latestActivityDate = DateUtil.formatDate(reposWithLastActivityDate.get(0).getLastActivityDate());
+            if (reposWithLastCommitDate.size() > 1){
+                for (var repo : reposWithLastCommitDate){
+                    var curDate = DateUtil.formatDate(repo.getLastActivityDate());
+                    if (curDate != null){
+                        if (curDate.after(latestActivityDate)){
+                            latestActivityDate = curDate;
+                        }
+                    }
+                }
+            }
+            if (lastCommitDate != null){
+                lastCommitDate.add(DateUtil.getDate(latestActivityDate) + " (last activity)");
+            }
         }
     }
 
@@ -102,18 +131,20 @@ public class RepoHandler implements BaseHandler {
         return repos;
     }
 
-    private static List<RDFNode> getRepositoryNodes(PVBModel model, Resource tool) {
-        return model.getProperties(tool, PROVERB.P_REPOSITORY);
+    private List<RDFNode> getRepositoryNodes(Resource tool) {
+        return this.ontologyService.getProperties(tool, PROVERB.P_REPOSITORY);
     }
 
-    public static List<Repository> getPaperEntities(PVBModel model, Resource tool) {
-        var nodes = getRepositoryNodes(model, tool);
+    public List<Repository> getRepoEntities(Resource tool) {
+
+        var nodes = getRepositoryNodes(tool);
         var repos = new ArrayList<Repository>(nodes.size());
         for (var node : nodes){
             var dto = new Repository();
-            model.getProperty((Resource) node, PROVERB.P_NAME).ifPresent(dto::setName);
-            model.getProperty((Resource) node, PROVERB.P_ABSTRACT).ifPresent(dto::setAbs);
-            model.getProperty((Resource) node, PROVERB.P_LAST_COMMIT_DATE).ifPresent(dto::setLastCommitDate);
+            this.ontologyService.getProperty((Resource) node, PROVERB.P_NAME).ifPresent(dto::setName);
+            this.ontologyService.getProperty((Resource) node, PROVERB.P_ABSTRACT).ifPresent(dto::setAbs);
+            this.ontologyService.getProperty((Resource) node, PROVERB.P_LAST_COMMIT_DATE).ifPresent(dto::setLastCommitDate);
+            this.ontologyService.getProperty((Resource) node, PROVERB.P_LAST_ACTIVITY_DATE).ifPresent(dto::setLastActivityDate);
             repos.add(dto);
         }
         return repos;

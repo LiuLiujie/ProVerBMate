@@ -18,9 +18,11 @@ public class ToolParser extends BaseParser {
     public ToolParser(File tool, PVBConfiguration configuration){
         this.tool = tool;
         this.config = configuration;
+        this.parse();
     }
 
-    public MDTool read(File input){
+    public MDTool parse(){
+        File input = tool;
         MDTool mdTool = new MDTool();
         var name = input.getName().replace(".md","");
         mdTool.setName(name);
@@ -120,7 +122,7 @@ public class ToolParser extends BaseParser {
             for (var title : mdTool.getTitles()){
                 builder.append(combineSeg(title, mdTool.getProperty(title)));
             }
-            pw.print(builder.toString().trim());
+            pw.print(builder.toString().trim()+"\n");
         }catch (IOException e){
             System.err.println(e.getStackTrace().toString());
         }

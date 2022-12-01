@@ -22,6 +22,9 @@ public class Repository {
     @Nullable
     private String lastCommitDate;
 
+    @Nullable
+    private String lastActivityDate;
+
     private String url;
 
     @Getter

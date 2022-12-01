@@ -70,6 +70,17 @@ public class OntologyServiceImpl implements OntologyService {
     }
 
     @Override
+    public Optional<String> getProperty(Resource resource, Property property) {
+        var p = this.getProperties(resource, property).stream().findFirst();
+        return p.map(rdfNode -> rdfNode.asLiteral().getString());
+    }
+
+    @Override
+    public List<RDFNode> getProperties(Resource resource, Property property){
+        return model.listObjectsOfProperty(resource, property).toList();
+    }
+
+    @Override
     public List<Resource> getAllRepositories() {
         var p = model.listSubjectsWithProperty(RDF.type, PROVERB.R_REPOSITORY);
         return p.toList();
@@ -79,6 +90,14 @@ public class OntologyServiceImpl implements OntologyService {
     public List<Resource> getAllArticles() {
         var p = model.listSubjectsWithProperty(RDF.type, PROVERB.R_ARTICLE);
         return p.toList();
+    }
+
+    public Resource getToolResource(String toolName){
+        return this.getResource(toolName);
+    }
+
+    private Resource getResource(String insName) {
+        return model.getResource(PROVERB.getURI() + insName);
     }
 
     @Override

@@ -1,19 +1,21 @@
 package nl.utwente.proverb.analyzer.pvbanalyzer.config;
 
 import lombok.Getter;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class PVBConfiguration {
 
     @Getter
-    private boolean loadRelatedPapers;
+    private boolean loadRelatedPapers = true;
     @Getter
-    private boolean loadPaperAllAuthors;
+    private boolean loadPaperAllAuthors = true;
     @Getter
-    private boolean loadPaperMainAuthor;
+    private boolean loadPaperMainAuthor = true;
     @Getter
-    private boolean loadRepositories;
+    private boolean loadRepositories = true;
     @Getter
-    private boolean loadRepoLastCommitTime;
+    private boolean loadRepoLastCommitTime = true;
     @Getter
-    private boolean loadRepoContributors;
+    private boolean loadRepoContributors = true;
 }

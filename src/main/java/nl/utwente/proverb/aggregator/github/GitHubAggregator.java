@@ -22,11 +22,16 @@ public class GitHubAggregator {
 
     public boolean aggregateGitHubURL(String url, Resource githubResource){
 
-        var handler = GitHubHandler.setHandlerChain(
-                new GitHubOrganizationHandler(this.githubService, this.ontologyService),
-                new GitHubRepositoryHandler(this.githubService, this.ontologyService),
-                new GitHubRepoBranchHandler(this.githubService, this.ontologyService)
-        );
-        return handler.handle(url, githubResource);
+        try {
+            var handler = GitHubHandler.setHandlerChain(
+                    new GitHubOrganizationHandler(this.githubService, this.ontologyService),
+                    new GitHubRepositoryHandler(this.githubService, this.ontologyService),
+                    new GitHubRepoBranchHandler(this.githubService, this.ontologyService)
+            );
+            return handler.handle(url, githubResource);
+        }catch (Exception e){
+            log.info("GitHub Aggregator fail: {}", url);
+            return false;
+        }
     }
 }
