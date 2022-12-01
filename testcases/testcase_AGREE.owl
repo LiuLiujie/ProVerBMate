@@ -240,6 +240,22 @@
     
 
 
+    <!-- http://slebok.github.io/proverb/ontology#AGREE -->
+
+    <owl:NamedIndividual rdf:about="http://slebok.github.io/proverb/ontology#AGREE">
+        <rdf:type rdf:resource="http://slebok.github.io/proverb/ontology#Tool"/>
+        <ontology:category rdf:resource="http://slebok.github.io/proverb/ontology#AADL"/>
+        <ontology:category rdf:resource="http://slebok.github.io/proverb/ontology#Model_checking"/>
+        <ontology:category rdf:resource="http://slebok.github.io/proverb/ontology#PV3"/>
+        <ontology:relatedpaper rdf:resource="https://doi.org/10.1007/978-3-642-28891-3_13"/>
+        <ontology:relatedpaper rdf:resource="https://doi.org/10.1016/j.ress.2021.107649"/>
+        <ontology:repository rdf:resource="https://github.com/loonwerks/AGREE"/>
+        <ontology:abstract>checks properties against an AADL model</ontology:abstract>
+        <ontology:name>AGREE: Assume Guarantee Reasoning Environment</ontology:name>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://slebok.github.io/proverb/ontology#Model_checking -->
 
     <owl:NamedIndividual rdf:about="http://slebok.github.io/proverb/ontology#Model_checking">
@@ -330,6 +346,14 @@
 
     <owl:NamedIndividual rdf:about="https://doi.org/10.1016/j.ress.2021.107649">
         <rdf:type rdf:resource="http://slebok.github.io/proverb/ontology#Article"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://github.com/loonwerks/AGREE -->
+
+    <owl:NamedIndividual rdf:about="https://github.com/loonwerks/AGREE">
+        <rdf:type rdf:resource="http://slebok.github.io/proverb/ontology#Repository"/>
     </owl:NamedIndividual>
     
 
