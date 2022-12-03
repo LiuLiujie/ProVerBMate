@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 @Component
 public class Orchestrator {
 
+    @Resource
     OrchestratorConfiguration config;
 
     @Resource
