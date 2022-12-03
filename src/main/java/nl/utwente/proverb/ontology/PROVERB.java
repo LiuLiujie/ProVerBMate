@@ -10,7 +10,7 @@ import org.apache.jena.rdf.model.Resource;
  * ProVerB ontology
  *
  * @author Yujie
- * @version 1.4.0
+ * @version 1.6.0
  */
 public class PROVERB {
 
@@ -62,4 +62,10 @@ public class PROVERB {
     public static final Property P_LAST_COMMIT_DATE = m.createProperty(URI, "lastCommitDate");
 
     public static final Property P_LAST_PUBLICATION_DATE = m.createProperty(URI, "lastPublicationDate");
+
+    /*Since ontology v1.5.0*/
+    public static final Property P_REPO_OWNER = m.createProperty(URI, "owner");
+
+    /*Since ontology v1.6.0*/
+    public static final Property P_USERNAME = m.createProperty(URI, "username");
 }
