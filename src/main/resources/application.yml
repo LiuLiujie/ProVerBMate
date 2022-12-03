@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+springer-key:
+
+github-token:
+
+cross-ref:
+  mailto:
+
+model:
+  proverb: extracted_ProVerB_1.6.0.owl
+
+tools: Verification-Tool-Overview/Tools
