@@ -22,6 +22,12 @@ public interface OntologyService {
 
     void addSameAs(Resource domain, Resource range);
 
+    Resource createTool(String toolName);
+
+    Resource createRepository(String githubURL);
+    
+    Resource createArticle(String doi);
+
     Resource createContributor(String githubHTMLURL, Resource gitHubResource);
 
     Resource createWriter(Resource articleResource, String name);

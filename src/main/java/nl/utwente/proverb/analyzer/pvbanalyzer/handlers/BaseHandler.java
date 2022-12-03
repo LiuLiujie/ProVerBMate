@@ -1,14 +1,14 @@
 package nl.utwente.proverb.analyzer.pvbanalyzer.handlers;
 
-public interface BaseHandler {
+public abstract class BaseHandler {
 
     /**
      * Enrich the original dataset without changing existed data
      */
-    void autoEnrichment();
+    public abstract void enrichment();
 
     /**
-     * Generate the data based on pre-defined template, some 'illegal' data will be lost.
+     * Extract Information from Markdown files
      */
-    void reGeneration();
+    public abstract void extractInfo();
 }

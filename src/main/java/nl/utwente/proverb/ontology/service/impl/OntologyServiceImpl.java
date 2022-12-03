@@ -49,6 +49,27 @@ public class OntologyServiceImpl implements OntologyService {
     }
 
     @Override
+    public Resource createTool(String toolName) {
+        var toolResource = model.createResource(PROVERB.getURI() + toolName);
+        this.addProperty(toolResource, RDF.type, PROVERB.R_TOOL);
+        return toolResource;
+    }
+
+    @Override
+    public Resource createRepository(String githubURL) {
+        var resource = model.createResource(githubURL);
+        this.addProperty(resource, RDF.type, PROVERB.R_REPOSITORY);
+        return resource;
+    }
+
+    @Override
+    public Resource createArticle(String doi) {
+        var resource = model.createResource(doi);
+        this.addProperty(resource, RDF.type, PROVERB.R_ARTICLE);
+        return resource;
+    }
+
+    @Override
     public void addSameAs(Resource domain, Resource range) {
         domain.addProperty(OWL.sameAs, range);
     }

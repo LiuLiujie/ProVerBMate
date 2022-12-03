@@ -15,7 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 @Component
-public class PVBController implements BaseHandler {
+public class PVBController extends BaseHandler {
 
     @Value("${tools}")
     private String toolsPath;
@@ -27,6 +27,33 @@ public class PVBController implements BaseHandler {
     private PVBConfiguration pvbConfiguration;
 
     private final List<BaseHandler> subAnalyzers = new ArrayList<>();
+
+    @Override
+    public void enrichment() {
+        var tools = this.loadTools();
+        for (var tool : tools){
+            ToolParser parser = new ToolParser(tool, pvbConfiguration);
+            MDTool mdTool = parser.parse();
+            subAnalyzers.add(new PaperHandler(ontologyService, mdTool));
+            subAnalyzers.add(new RepoHandler(ontologyService, mdTool));
+            subAnalyzers.forEach(BaseHandler::enrichment);
+            parser.write(mdTool);
+        }
+    }
+
+    @Override
+    public void extractInfo() {
+        var tools = this.loadTools();
+        for (var tool : tools) {
+            ToolParser parser = new ToolParser(tool, pvbConfiguration);
+            MDTool mdTool = parser.parse();
+            this.ontologyService.createTool(mdTool.getName().replace(" ","_"));
+            subAnalyzers.add(new PaperHandler(ontologyService, mdTool));
+            subAnalyzers.add(new RepoHandler(ontologyService, mdTool));
+            subAnalyzers.forEach(BaseHandler::extractInfo);
+            ontologyService.write();
+        }
+    }
 
     private List<File> loadTools(){
         var path = new File(toolsPath);
@@ -55,23 +82,5 @@ public class PVBController implements BaseHandler {
             }
         }
         return newFiles;
-    }
-
-    @Override
-    public void autoEnrichment() {
-        var tools = this.loadTools();
-        for (var tool : tools){
-            ToolParser parser = new ToolParser(tool, pvbConfiguration);
-            MDTool mdTool = parser.parse();
-            subAnalyzers.add(new PaperHandler(ontologyService, mdTool));
-            subAnalyzers.add(new RepoHandler(ontologyService, mdTool));
-            subAnalyzers.forEach(BaseHandler::autoEnrichment);
-            parser.write(mdTool);
-        }
-    }
-
-    @Override
-    public void reGeneration() {
-        subAnalyzers.forEach(BaseHandler::reGeneration);
     }
 }

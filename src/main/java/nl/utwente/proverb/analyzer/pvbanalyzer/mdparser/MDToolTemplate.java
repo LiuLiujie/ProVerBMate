@@ -4,7 +4,7 @@ public class MDToolTemplate {
 
     private MDToolTemplate() { }
 
-    private static final String PREFIX = "#### ";
+    public static final String PREFIX = "#### ";
 
     public static final String FULL_NAME = PREFIX + "Name:";
 

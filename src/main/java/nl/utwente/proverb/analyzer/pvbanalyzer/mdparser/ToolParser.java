@@ -2,13 +2,18 @@ package nl.utwente.proverb.analyzer.pvbanalyzer.mdparser;
 
 
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import nl.utwente.proverb.analyzer.pvbanalyzer.config.PVBConfiguration;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Log4j2
 public class ToolParser extends BaseParser {
 
     private final File tool;
@@ -25,95 +30,101 @@ public class ToolParser extends BaseParser {
         File input = tool;
         MDTool mdTool = new MDTool();
         var name = input.getName().replace(".md","");
-        mdTool.setName(name);
+        mdTool.setName(name.replace(" ",""));
         try (var reader = new InputStreamReader(new FileInputStream(input));
              var br = new BufferedReader(reader)){
-            String line;
-            line = br.readLine();
-            while (line != null) {
-                switch (line){
+            ToolParser.Frag frag = readTilNextFrag(br);
+            if (!frag.content.isEmpty()){
+                //have some introduction before head
+                mdTool.addProperty(frag.content.get(0), frag.content.subList(1, frag.getContent().size()));
+            }
+            while (frag.nextTitle != null) {
+                switch (frag.nextTitle){
                     case MDToolTemplate.FULL_NAME:
-                        var fName = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.FULL_NAME, fName);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.FULL_NAME, frag.getContent());
                         break;
                     case MDToolTemplate.DOMAIN:
-                        var domains = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.DOMAIN, domains);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.DOMAIN, frag.getContent());
                         break;
                     case MDToolTemplate.TYPE:
-                        var types = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.TYPE, types);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.TYPE, frag.getContent());
                         break;
                     case MDToolTemplate.INPUT_THING:
-                        List<String> thing = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.INPUT_THING, thing);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.INPUT_THING, frag.getContent());
                         break;
                     case MDToolTemplate.INPUT_FORMAT:
-                        List<String> inputs = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.INPUT_FORMAT, inputs);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.INPUT_FORMAT, frag.getContent());
                         break;
                     case MDToolTemplate.OUTPUT:
-                        List<String> outputs = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.OUTPUT, outputs);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.OUTPUT, frag.getContent());
                         break;
                     case MDToolTemplate.INTERNAL:
-                        List<String> internals = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.INTERNAL, internals);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.INTERNAL, frag.getContent());
                         break;
                     case MDToolTemplate.COMMENT:
-                        List<String> comments = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.COMMENT, comments);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.COMMENT, frag.getContent());
                         break;
                     case MDToolTemplate.URIS:
-                        List<String> uris = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.URIS, uris);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.URIS, frag.getContent());
                         break;
                     case MDToolTemplate.LAST_COMMIT_DATE:
-                        List<String> cmtDate = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.LAST_COMMIT_DATE, cmtDate);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.LAST_COMMIT_DATE, frag.getContent());
                         break;
                     case MDToolTemplate.LAST_PUB_DATE:
-                        List<String> pubDate = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.LAST_PUB_DATE, pubDate);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.LAST_PUB_DATE, frag.getContent());
                         break;
                     case MDToolTemplate.PAPERS:
-                        List<String> papers = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.PAPERS, papers);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.PAPERS, frag.getContent());
                         break;
                     case MDToolTemplate.RELA_TOOLS:
-                        List<String> relaTools = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.RELA_TOOLS, relaTools);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.RELA_TOOLS, frag.getContent());
                         break;
                     case MDToolTemplate.META:
-                        List<String> metas = readTilEmpty(br);
-                        mdTool.addProperty(MDToolTemplate.META, metas);
+                        frag = readTilNextFrag(br);
+                        mdTool.addProperty(MDToolTemplate.META, frag.getContent());
                         break;
                     default:
                         //Sentences that are not follow the template
-                        if (!line.isBlank()){
-                            List<String> defaults = readTilEmpty(br);
-                            mdTool.addProperty(line, defaults);
-                            System.out.println("Undefined title in MD file: " + line);
+                        if (!StringUtils.isBlank(frag.getNextTitle())){
+                            String title = frag.nextTitle;
+                            frag = readTilNextFrag(br);
+                            mdTool.addProperty(title, frag.getContent());
+                            log.warn("Undefined title in MD file {}: " + frag.getNextTitle(), name);
                         }
                         break;
                 }
-                line = br.readLine();
             }
         } catch (IOException e) {
-            System.err.println("Reading file error:" +e.getMessage());
-            System.err.println(Arrays.toString(e.getStackTrace()));
+            log.error("Reading file error:" +e.getMessage());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
         return mdTool;
     }
 
-    public List<String> readTilEmpty(BufferedReader br) throws IOException{
+    public Frag readTilNextFrag(BufferedReader br) throws IOException{
         String line = br.readLine();
         List<String> content = new ArrayList<>();
-        while (line != null && !line.isEmpty()){
+        while(line!=null && !line.startsWith(MDToolTemplate.PREFIX)){
             content.add(line);
             line = br.readLine();
         }
-        return content;
+        if (!content.isEmpty() && content.get(content.size()-1).equals("")){
+            return new Frag(content.subList(0, content.size()-1), line);
+        }
+        return new Frag(content, line);
     }
 
     public void write(MDTool mdTool){
@@ -124,7 +135,7 @@ public class ToolParser extends BaseParser {
             }
             pw.print(builder.toString().trim()+"\n");
         }catch (IOException e){
-            System.err.println(e.getStackTrace().toString());
+            log.error(e.getStackTrace());
         }
     }
 
@@ -134,5 +145,13 @@ public class ToolParser extends BaseParser {
         contents.forEach(c -> builder.append(c).append("\n"));
         builder.append("\n");
         return builder.toString();
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static class Frag{
+        List<String> content;
+
+        String nextTitle;
     }
 }

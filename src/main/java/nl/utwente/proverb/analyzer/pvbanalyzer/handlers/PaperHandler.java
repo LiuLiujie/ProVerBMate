@@ -6,41 +6,56 @@ import nl.utwente.proverb.analyzer.pvbanalyzer.mdparser.MDToolTemplate;
 import nl.utwente.proverb.ontology.PROVERB;
 import nl.utwente.proverb.ontology.service.OntologyService;
 import nl.utwente.proverb.util.EscapeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-public class PaperHandler implements BaseHandler {
+public class PaperHandler extends BaseHandler {
 
-    private final Resource tool;
+    private final Resource toolResource;
 
     private final OntologyService ontologyService;
 
-    private final List<String> mdPapers;
+    private final MDTool mdTool;
 
     public PaperHandler(OntologyService ontologyService, MDTool mdTool){
         this.ontologyService = ontologyService;
-        this.tool = this.ontologyService.getToolResource(mdTool.getName());
-        this.mdPapers = mdTool.getProperty(MDToolTemplate.PAPERS);
+        this.mdTool = mdTool;
+        this.toolResource = this.ontologyService.getToolResource(mdTool.getName());
     }
 
     @Override
-    public void autoEnrichment() {
-        this.enrichPaper();
+    public void enrichment() {
+        var mdPapers = mdTool.getProperty(MDToolTemplate.PAPERS);
+        this.enrichPaper(mdPapers);
     }
 
-    public void enrichPaper(){
-        var entities = getPaperEntities(this.tool);
-        for (int i = 0; i< mdPapers.size(); i++) {
+    @Override
+    public void extractInfo() {
+        var mdPapers = mdTool.getProperty(MDToolTemplate.PAPERS);
+        var papers = this.extractPapers(mdPapers);
+        for (var paper : papers){
+            if (!StringUtils.isBlank(paper.getDoiURL())){
+                var articleResource = ontologyService.createArticle(paper.getDoiURL());
+                if (!StringUtils.isBlank(paper.getTitle())){
+                    ontologyService.addUniqueProperty(articleResource, PROVERB.P_NAME, paper.getTitle());
+                }
+            }
+        }
+    }
+
+    public void enrichPaper(List<String> mdPapers){
+        var entities = getPaperEntities(this.toolResource);
+        for (int i=0; i< mdPapers.size(); i++){
             var mdPaper = mdPapers.get(i);
-            var doi = this.extractMDDoi(mdPaper);
-            if (doi.isEmpty()){
+            if (containsTitle(mdPaper)){
+                //If already have the title, no need to enrich
                 continue;
             }
-            var paperEntity = entities.stream().filter(entity -> entity.getDoiURL().equals(doi.get())).findFirst();
+            var oldPaper = extractPaper(mdPaper);
+            var paperEntity = entities.stream().filter(entity -> entity.getDoiURL().equals(oldPaper.getDoiURL())).findFirst();
             if (paperEntity.isPresent()){
                 var enrichedPaper = enrichTitle(mdPaper, paperEntity.get().getTitle(), paperEntity.get().getDoiURL());
                 mdPapers.set(i, enrichedPaper);
@@ -48,18 +63,33 @@ public class PaperHandler implements BaseHandler {
         }
     }
 
-    @Override
-    public void reGeneration() {
-        throw new UnsupportedOperationException();
+    private List<Paper> extractPapers(List<String> mdPapers){
+        var papers = new ArrayList<Paper>(mdPapers.size());
+        for (String mdPaper: mdPapers){
+            var paper = extractPaper(mdPaper);
+            papers.add(paper);
+        }
+        return papers;
     }
 
-    private Optional<String> extractMDDoi(String mdPaper){
-        for (String str : mdPaper.split(" ")){
-            if (str.contains("doi.org")){
-                return Optional.of(EscapeUtil.escapeURL(str));
+    private Paper extractPaper(String mdPaper){
+        var paper = new Paper();
+        if (containsTitle(mdPaper)){
+            //With title already
+            String title = mdPaper.substring(mdPaper.indexOf("["), mdPaper.indexOf("]"));
+            String doi = mdPaper.substring(mdPaper.indexOf('('), mdPaper.indexOf(')'));
+            if (doi.contains("doi.org")){
+                paper.setTitle(title);
+            }
+        }else{
+            //Without title
+            for (String str : mdPaper.split(" ")){
+                if (str.contains("doi.org")){
+                    paper.setDoiURL(EscapeUtil.escapeURL(str));
+                }
             }
         }
-        return Optional.empty();
+        return paper;
     }
 
     private String enrichTitle(String origin, String title, String doi) {
@@ -90,7 +120,7 @@ public class PaperHandler implements BaseHandler {
         if (str.startsWith("http")){
             return false;
         }
-        return str.startsWith("[") && str.contains("]");
+        return str.contains("[") && str.contains("]");
     }
 
     private static boolean containsConference(String str){

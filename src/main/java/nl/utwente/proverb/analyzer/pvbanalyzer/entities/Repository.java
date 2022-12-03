@@ -17,6 +17,8 @@ public class Repository {
 
     private String abs;
 
+    private Contributor owner;
+
     private List<Contributor> contributors;
 
     @Nullable
@@ -28,8 +30,12 @@ public class Repository {
     private String url;
 
     @Getter
+    @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Contributor {
+
+        private String username;
 
         private String name;
 
