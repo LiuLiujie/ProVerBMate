@@ -10,6 +10,8 @@ import javax.annotation.Resource;
 @Component
 public class Orchestrator {
 
+    OrchestratorConfiguration config;
+
     @Resource
     AggregatorController aggregatorController;
 
@@ -19,7 +21,16 @@ public class Orchestrator {
     @PostConstruct
     public void autoOrchestrate(){
 
-        aggregatorController.aggregate();
-        pvbController.autoEnrichment();
+        if (this.config.enableMDDataExtraction){
+            pvbController.extractInfo();
+        }
+
+        if (this.config.enableAggregator){
+            aggregatorController.aggregate();
+        }
+
+        if (this.config.enableMDDataWriteBack){
+            pvbController.enrichment();
+        }
     }
 }
