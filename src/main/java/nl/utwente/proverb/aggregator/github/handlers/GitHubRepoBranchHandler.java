@@ -35,6 +35,7 @@ public class GitHubRepoBranchHandler extends GitHubRepositoryHandler{
             return handleNext(url, githubResource);
         }
         super.handleContributor(optGitHubRepoDTO.get(), githubResource);
+        super.handleOwner(optGitHubRepoDTO.get(), githubResource);
         //Then fetch specific branch info
         var branchRestURL = this.getBranchURL(url);
         if (branchRestURL.isEmpty()){

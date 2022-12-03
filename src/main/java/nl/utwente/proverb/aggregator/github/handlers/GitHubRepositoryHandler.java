@@ -39,6 +39,7 @@ public class GitHubRepositoryHandler extends GitHubHandler{
         }
         var repoDTO = optGitHubRepoDTO.get();
         handleContributor(repoDTO, githubResource);
+        handleOwner(repoDTO, githubResource);
         var branchRestURL = repoRestURL + "/branches/"+repoDTO.getDefaultBranch();
         handelRepoBranch(branchRestURL, githubResource);
         log.info("GitHub Repo handler success");
@@ -97,10 +98,30 @@ public class GitHubRepositoryHandler extends GitHubHandler{
             }
             for (var contributor: dtoOpt){
                 var person = this.ontologyService.createContributor(contributor.getHomeHTMLURL(), githubResource);
+                this.ontologyService.addUniqueProperty(person, PROVERB.P_USERNAME, contributor.getUsername());
                 var detail = contributor.getDetail();
                 if (detail != null){
                     this.ontologyService.addUniqueProperty(person, PROVERB.P_NAME, detail.getName());
                     this.ontologyService.addUniqueProperty(person, PROVERB.P_ABSTRACT, detail.getAbs());
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getStackTrace());
+        }
+    }
+
+    protected void handleOwner(GitHubRepoDTO repoDTO, Resource githubResource){
+        try {
+            var ownerDTO = repoDTO.getOwner();
+            if (ownerDTO != null){
+                var userDTO = this.githubService.getGitHubUser(ownerDTO.getHomeRestURL());
+                var owner = this.ontologyService.createContributor(ownerDTO.getHomeHTMLURL(), githubResource);
+                this.ontologyService.addProperty(githubResource, PROVERB.P_REPO_OWNER, owner);
+                this.ontologyService.addUniqueProperty(owner, PROVERB.P_USERNAME, ownerDTO.getUsername());
+                if (userDTO.isPresent()){
+                    var detail = userDTO.get();
+                    this.ontologyService.addUniqueProperty(owner, PROVERB.P_NAME, detail.getName());
+                    this.ontologyService.addUniqueProperty(owner, PROVERB.P_ABSTRACT, detail.getAbs());
                 }
             }
         }catch (Exception e){

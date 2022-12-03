@@ -15,6 +15,9 @@ public class GitHubRepoDTO {
     @JsonAlias("name")
     private String repoName;
 
+    @JsonAlias("owner")
+    private GitHubRepoContributorDTO owner;
+
     @JsonAlias("description")
     private String abs;
 
